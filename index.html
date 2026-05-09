@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- ใช้ A-Frame และ Mind-AR เวอร์ชั่นที่เสถียร -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      /* เพิ่มปุ่ม UI เผื่อกรณีกล้องไม่ติด */
+      #scanning-overlay {
+        display: flex; align-items: center; justify-content: center;
+        position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+        background: rgba(0,0,0,0.5); color: white; z-index: 99;
+      }
+      .hidden { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <!-- 
+      เรียกไฟล์ .mind จากโฟลเดอร์เดียวกัน 
+      UI สแกนจะหายไปเมื่อระบบพร้อมใช้งาน
+    -->
+    <a-scene 
+      mindar-image="imageTargetSrc: ./targets.mind; uiScanning: #scanning-overlay;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+      
+      <a-assets>
+        <!-- เรียกไฟล์ .glb จากโฟลเดอร์เดียวกัน -->
+        <a-asset-item id="model" src="./3d.glb"></a-asset-item>
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-entity mindar-image-target="targetIndex: 0">
+        <!-- ปรับ scale ให้พอดี (0.1 อาจจะเล็กหรือใหญ่ไปขึ้นอยู่กับโมเดล) -->
+        <a-gltf-model rotation="0 0 0" position="0 0 0.1" scale="0.05 0.05 0.05" src="#model"></a-gltf-model>
+      </a-entity>
+    </a-scene>
+
+    <div id="scanning-overlay">
+      <p>กำลังโหลดระบบ AR และเข้าถึงกล้อง...</p>
+    </div>
+
+    <script>
+      // ตรวจสอบว่าสแกนเจอหรือไม่
+      const sceneEl = document.querySelector('a-scene');
+      sceneEl.addEventListener("arReady", (event) => {
+        document.querySelector('#scanning-overlay').classList.add('hidden');
+      });
+    </script>
+  </body>
+</html>
